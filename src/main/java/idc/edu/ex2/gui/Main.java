@@ -19,7 +19,7 @@ public class Main
 {
     public static void main(String[] args) throws Throwable
     {
-        JFrame frame = new JFrame("Beacons GUI by Alex");
+        JFrame frame = new JFrame("Beacons GUI");
         frame.addWindowListener(existApp());
 
         frame.setSize(1024, 629);
