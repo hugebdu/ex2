@@ -3,4 +3,6 @@
 *.iml
 *.pdf
 *.docx
+*.project
+*.classpath
 target
