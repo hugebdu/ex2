@@ -5,12 +5,10 @@ import idc.edu.ex2.geometry.Point;
 
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import static idc.edu.ex2.geometry.Beacon.Beacon;
-import static idc.edu.ex2.geometry.Point.Point;
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,24 +48,14 @@ public class Main
 
     private static Area createArea()
     {
-        return new Area()
-                .addBeacon(Beacon(Point(0, 10), 10))
-                .addBeacon(Beacon(Point(0, 20), 20))
-                .addBeacon(Beacon(Point(0, 30), 30))
-                .addBeacon(Beacon(Point(0, 40), 40))
-                .addBeacon(Beacon(Point(0, 50), 50))
-                .addBeacon(Beacon(Point(0, 60), 60))
-                .addBeacon(Beacon(Point(0, 70), 70))
-                .addBeacon(Beacon(Point(98, 98), 10))
-                .addBeacon(Beacon(Point(98, 98), 20))
-                .addBeacon(Beacon(Point(98, 98), 30))
-                .addBeacon(Beacon(Point(98, 98), 40))
-                .addBeacon(Beacon(Point(98, 98), 50))
-                .addBeacon(Beacon(Point(98, 98), 60))
-                .addBeacon(Beacon(Point(98, 98), 70))
-                .addTrackedPoint(Point.random())
-                .addTrackedPoint(Point.random())
-                .addTrackedPoint(Point.random());
+        Area area = new Area();
 
+        for (int i = 0; i < 15; i++)
+        {
+            area.addBeacon(Beacon(new Point(0, 0), 20 * (i + 1)));
+            area.addBeacon(Beacon(new Point(0, 99), 20 * (i + 1)));
+        }
+
+        return area;
     }
 }

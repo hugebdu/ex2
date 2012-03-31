@@ -15,6 +15,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.Math.*;
 
 /**
@@ -197,8 +198,12 @@ public class CanvasPanel extends JPanel
             g.drawLine(getGuiX(), getGuiY() - halfSize, getGuiX(), getGuiY() + halfSize);
 
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.05f));
+
+            g.setColor(Color.black);
             int radius = scaleX(getModel().signalStrength);
-            g.fillArc(getGuiX() - radius / 2, getGuiY() - radius / 2, radius, radius, 0, 360);
+            g.drawArc(getGuiX() - radius / 2, getGuiY() - radius / 2, radius, radius, 0, 360);
+            g.setColor(Color.red);
+            g.fillArc(getGuiX() - radius / 2, getGuiY() - radius / 2, radius - 1, radius - 1, 0, 360);
 
             g.setComposite(originalComposite);
         }
@@ -207,6 +212,8 @@ public class CanvasPanel extends JPanel
     class AreaGUI 
     {
         private Map<BaseFigure<?>, Float>[][] matrix;
+        private Set<BaseFigure<?>>[][] coverageMatrix;
+        
         private List<BaseFigure<?>> figuresList = newLinkedList();
         
         private BaseFigure<?> overElement = null;
@@ -222,11 +229,15 @@ public class CanvasPanel extends JPanel
         private void initMatrix()
         {
             matrix = new Map[WIDTH][HEIGHT];
+            coverageMatrix = new Set[WIDTH][HEIGHT];
 
             for (int i = 0; i < matrix.length; i++)
             {
                 for (int j = 0; j < matrix[i].length; j++)
+                {
                     matrix[i][j] = newHashMap();
+                    coverageMatrix[i][j] = newHashSet();
+                }
             }
         }
 
@@ -318,13 +329,6 @@ public class CanvasPanel extends JPanel
 
         private void initFigures(Area area)
         {
-//            for (Point point : area.trackedPoints)
-//            {
-//                PointFigure figure = new PointFigure(point);
-//
-//                placeFigureMarker(figure);
-//            }
-
             for (Beacon beacon : area.beaconsSet)
             {
                 BeaconFigure figure = new BeaconFigure(beacon);
@@ -339,6 +343,20 @@ public class CanvasPanel extends JPanel
                 for (int y = figure.getGuiY() - PADDING_SIZE; y < figure.getGuiY() + PADDING_SIZE; y++)
                     if (isValidCoordinate(x, y))
                         matrix[x][y].remove(figure);
+
+            if (figure instanceof BeaconFigure)
+            {
+                BeaconFigure beaconFigure = (BeaconFigure) figure;
+                int radius = scaleX(beaconFigure.getModel().signalStrength);
+                for (int x = figure.getGuiX() - radius; x <= figure.getGuiX() + radius; x++)
+                {
+                    for (int y = figure.getGuiY() - radius; y <= figure.getGuiY() + radius; y++)
+                    {
+                        if (isValidCoordinate(x, y))
+                            coverageMatrix[x][y].remove(figure);
+                    }
+                }
+            }
         }
 
         private void placeFigureMarker(BaseFigure figure)
@@ -355,6 +373,20 @@ public class CanvasPanel extends JPanel
                         
                         float weight = (float) (PADDING_SIZE - distance); 
                         map.put(figure, weight);
+                    }
+                }
+            }
+            
+            if (figure instanceof BeaconFigure)
+            {
+                BeaconFigure beaconFigure = (BeaconFigure) figure;
+                int radius = scaleX(beaconFigure.getModel().signalStrength);
+                for (int x = figure.getGuiX() - radius; x <= figure.getGuiX() + radius; x++)
+                {
+                    for (int y = figure.getGuiY() - radius; y <= figure.getGuiY() + radius; y++)   
+                    {
+                        if (isValidCoordinate(x, y))
+                            coverageMatrix[x][y].add(figure);
                     }
                 }
             }
