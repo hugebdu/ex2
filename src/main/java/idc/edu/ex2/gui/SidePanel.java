@@ -1,8 +1,6 @@
 package idc.edu.ex2.gui;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.util.EventObject;
@@ -14,20 +12,51 @@ import java.util.EventObject;
  */
 public class SidePanel extends JPanel
 {
+    private final CanvasPanel canvasPanel;
+
     public SidePanel(CanvasPanel canvasPanel)
     {
-        add(new MouseOverElementPanel(canvasPanel), BorderLayout.PAGE_END);
+        this.canvasPanel = canvasPanel;
+        add(new ToolBar(), BorderLayout.PAGE_START);
+        add(new MouseOverElementPanel(), BorderLayout.PAGE_END);
+        add(new SegmentAreaPanel(), BorderLayout.PAGE_START);
 
     }
 
+    class ToolBar extends JToolBar
+    {
+          public ToolBar()
+          {
+              add(createAreaButton());
+              //TODO
+          }
 
+        private JToggleButton createAreaButton()
+        {
+            return new JToggleButton("Area");
+        }
+    }
+    
+    class SegmentAreaPanel extends JPanel
+    {
+        public SegmentAreaPanel()
+        {
+            add(new JLabel("Segment area: "));
+            //TODO
+        }
+    }
+    
+    class BeaconInfoPanel extends JPanel
+    {
+        //TODO
+    }
 
     class MouseOverElementPanel extends JPanel implements CanvasPanel.MouseListener
     {
         private static final String NONE = "";
         private final JLabel label;
 
-        public MouseOverElementPanel(CanvasPanel canvasPanel)
+        public MouseOverElementPanel()
         {
             canvasPanel.registerMouseListener(this);
             setLayout(new GridLayout(1, 2));

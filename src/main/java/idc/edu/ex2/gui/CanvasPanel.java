@@ -1,5 +1,7 @@
 package idc.edu.ex2.gui;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import idc.edu.ex2.geometry.Area;
 import idc.edu.ex2.geometry.Beacon;
 import idc.edu.ex2.geometry.Point;
@@ -32,9 +34,9 @@ public class CanvasPanel extends JPanel
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
     private static final int POINT_RADIUS = 3;
     private static final int CROSS_WIDTH = 4;
-    private static final Comparator<Map.Entry<BaseFigure<?>,Float>> WEIGHT_COMPARATOR = new Comparator<Map.Entry<BaseFigure<?>, Float>>()
+    private static final Comparator<Map.Entry<BeaconFigure,Float>> WEIGHT_COMPARATOR = new Comparator<Map.Entry<BeaconFigure, Float>>()
     {
-        public int compare(Map.Entry<BaseFigure<?>, Float> o1, Map.Entry<BaseFigure<?>, Float> o2)
+        public int compare(Map.Entry<BeaconFigure, Float> o1, Map.Entry<BeaconFigure, Float> o2)
         {
             return Float.compare(o1.getValue(), o2.getValue());
         }
@@ -211,18 +213,47 @@ public class CanvasPanel extends JPanel
     
     class AreaGUI 
     {
-        private Map<BaseFigure<?>, Float>[][] matrix;
-        private Set<BaseFigure<?>>[][] coverageMatrix;
+        private Map<BeaconFigure, Float>[][] matrix;
+        private Set<BeaconFigure>[][] coverageMatrix;
+
+        private Multimap<Set<BeaconFigure>, java.awt.Point> segments;
         
         private List<BaseFigure<?>> figuresList = newLinkedList();
         
-        private BaseFigure<?> overElement = null;
+        private BeaconFigure overElement = null;
         
         public AreaGUI(Area area)
         {
             initMatrix();
             initFigures(area);
             registerMouseMotionListener();
+            buildSegments();
+
+            printSegments();
+        }
+
+        private void printSegments()
+        {
+            int index = 1;
+
+            for (Collection<java.awt.Point> points : segments.asMap().values())
+                System.out.println(String.format("%d. %d points", index++, points.size()));
+        }
+
+        //TODO: handle beacon movements
+        @SuppressWarnings("unchecked")
+        private void buildSegments()
+        {
+            segments = HashMultimap.create();
+            for (int x = 0; x < WIDTH; x++)
+            {
+                for (int y = 0; y < HEIGHT; y++)
+                {
+                    Set<BeaconFigure> beacons = coverageMatrix[x][y];
+                    if (!beacons.isEmpty())
+                        segments.put(beacons, new java.awt.Point(x, y));
+                }
+            }
         }
 
         @SuppressWarnings("unchecked")
@@ -248,11 +279,11 @@ public class CanvasPanel extends JPanel
                 @Override
                 public void mouseMoved(MouseEvent e)
                 {
-                    Map<BaseFigure<?>, Float> map = matrix[e.getX()][e.getY()];
+                    Map<BeaconFigure, Float> map = matrix[e.getX()][e.getY()];
                     
                     if (!map.isEmpty())
                     {
-                        BaseFigure<?> figure = Collections.max(map.entrySet(), weightComparator()).getKey();
+                        BeaconFigure figure = Collections.max(map.entrySet(), weightComparator()).getKey();
                         fireMouseOver(figure.getModel());
                         overElement = figure;
                         setFingerCursor();
@@ -307,7 +338,7 @@ public class CanvasPanel extends JPanel
             });
         }
 
-        private Comparator<? super Map.Entry<BaseFigure<?>, Float>> weightComparator()
+        private Comparator<? super Map.Entry<BeaconFigure, Float>> weightComparator()
         {
             return WEIGHT_COMPARATOR;
         }
@@ -359,7 +390,7 @@ public class CanvasPanel extends JPanel
             }
         }
 
-        private void placeFigureMarker(BaseFigure figure)
+        private void placeFigureMarker(BeaconFigure figure)
         {
             for (int x = figure.getGuiX() - PADDING_SIZE; x < figure.getGuiX() + PADDING_SIZE; x++)
             {
@@ -367,7 +398,7 @@ public class CanvasPanel extends JPanel
                 {
                     if (isValidCoordinate(x, y))
                     {
-                        Map<BaseFigure<?>, Float> map = matrix[x][y];
+                        Map<BeaconFigure, Float> map = matrix[x][y];
                         double distance = sqrt(pow(x - figure.getGuiX(), 2) +
                                 pow(y - figure.getGuiY(), 2));
                         
