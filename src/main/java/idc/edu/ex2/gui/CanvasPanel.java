@@ -10,11 +10,12 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.util.EventObject;
+import java.util.*;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
-import static java.lang.Math.round;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.Math.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,6 +31,13 @@ public class CanvasPanel extends JPanel
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
     private static final int POINT_RADIUS = 3;
     private static final int CROSS_WIDTH = 4;
+    private static final Comparator<Map.Entry<BaseFigure<?>,Float>> WEIGHT_COMPARATOR = new Comparator<Map.Entry<BaseFigure<?>, Float>>()
+    {
+        public int compare(Map.Entry<BaseFigure<?>, Float> o1, Map.Entry<BaseFigure<?>, Float> o2)
+        {
+            return Float.compare(o1.getValue(), o2.getValue());
+        }
+    };
 
     private AreaGUI area;
     private List<MouseListener> mouseListeners = newLinkedList();
@@ -133,6 +141,27 @@ public class CanvasPanel extends JPanel
             this.guiY = guiY;
             //TODO: adjust model
         }
+
+        @Override
+        public int hashCode()
+        {
+            return model.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof BaseFigure))
+                return false;
+            
+            return model.equals(((BaseFigure)obj).getModel());
+        }
+
+        @Override
+        public String toString()
+        {
+            return model.toString();
+        }
     }
     
     class PointFigure extends BaseFigure<Point>
@@ -167,7 +196,7 @@ public class CanvasPanel extends JPanel
             g.drawLine(getGuiX() - halfSize, getGuiY(), getGuiX() + halfSize, getGuiY());
             g.drawLine(getGuiX(), getGuiY() - halfSize, getGuiX(), getGuiY() + halfSize);
 
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.002f));
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.05f));
             int radius = scaleX(getModel().signalStrength);
             g.fillArc(getGuiX() - radius / 2, getGuiY() - radius / 2, radius, radius, 0, 360);
 
@@ -177,15 +206,28 @@ public class CanvasPanel extends JPanel
     
     class AreaGUI 
     {
-        private final BaseFigure<?>[][] matrix;
+        private Map<BaseFigure<?>, Float>[][] matrix;
+        private List<BaseFigure<?>> figuresList = newLinkedList();
         
         private BaseFigure<?> overElement = null;
         
         public AreaGUI(Area area)
         {
-            matrix = new BaseFigure[WIDTH][HEIGHT];
+            initMatrix();
             initFigures(area);
             registerMouseMotionListener();
+        }
+
+        @SuppressWarnings("unchecked")
+        private void initMatrix()
+        {
+            matrix = new Map[WIDTH][HEIGHT];
+
+            for (int i = 0; i < matrix.length; i++)
+            {
+                for (int j = 0; j < matrix[i].length; j++)
+                    matrix[i][j] = newHashMap();
+            }
         }
 
         private void registerMouseMotionListener()
@@ -195,10 +237,11 @@ public class CanvasPanel extends JPanel
                 @Override
                 public void mouseMoved(MouseEvent e)
                 {
-                    BaseFigure<?> figure = matrix[e.getX()][e.getY()];
-
-                    if (figure != null)
+                    Map<BaseFigure<?>, Float> map = matrix[e.getX()][e.getY()];
+                    
+                    if (!map.isEmpty())
                     {
+                        BaseFigure<?> figure = Collections.max(map.entrySet(), weightComparator()).getKey();
                         fireMouseOver(figure.getModel());
                         overElement = figure;
                         setFingerCursor();
@@ -253,6 +296,11 @@ public class CanvasPanel extends JPanel
             });
         }
 
+        private Comparator<? super Map.Entry<BaseFigure<?>, Float>> weightComparator()
+        {
+            return WEIGHT_COMPARATOR;
+        }
+
         private void setMoveCursor()
         {
             setCursor(MOVE_CURSOR());
@@ -270,16 +318,17 @@ public class CanvasPanel extends JPanel
 
         private void initFigures(Area area)
         {
-            for (Point point : area.trackedPoints)
-            {
-                PointFigure figure = new PointFigure(point);
-
-                placeFigureMarker(figure);
-            }
+//            for (Point point : area.trackedPoints)
+//            {
+//                PointFigure figure = new PointFigure(point);
+//
+//                placeFigureMarker(figure);
+//            }
 
             for (Beacon beacon : area.beaconsSet)
             {
                 BeaconFigure figure = new BeaconFigure(beacon);
+                figuresList.add(figure);
                 placeFigureMarker(figure);
             }
         }
@@ -289,15 +338,26 @@ public class CanvasPanel extends JPanel
             for (int x = figure.getGuiX() - PADDING_SIZE; x < figure.getGuiX() + PADDING_SIZE; x++)
                 for (int y = figure.getGuiY() - PADDING_SIZE; y < figure.getGuiY() + PADDING_SIZE; y++)
                     if (isValidCoordinate(x, y))
-                        matrix[x][y] = null;
+                        matrix[x][y].remove(figure);
         }
 
         private void placeFigureMarker(BaseFigure figure)
         {
             for (int x = figure.getGuiX() - PADDING_SIZE; x < figure.getGuiX() + PADDING_SIZE; x++)
+            {
                 for (int y = figure.getGuiY() - PADDING_SIZE; y < figure.getGuiY() + PADDING_SIZE; y++)
+                {
                     if (isValidCoordinate(x, y))
-                        matrix[x][y] = figure;
+                    {
+                        Map<BaseFigure<?>, Float> map = matrix[x][y];
+                        double distance = sqrt(pow(x - figure.getGuiX(), 2) +
+                                pow(y - figure.getGuiY(), 2));
+                        
+                        float weight = (float) (PADDING_SIZE - distance); 
+                        map.put(figure, weight);
+                    }
+                }
+            }
         }
 
         private boolean isValidCoordinate(int x, int y)
@@ -307,14 +367,8 @@ public class CanvasPanel extends JPanel
 
         public void draw(Graphics2D g)
         {
-            for (BaseFigure<?>[] row : matrix)
-            {
-                for (BaseFigure<?> figure : row)
-                {
-                    if (figure != null)
-                        figure.draw(g);
-                }
-            }
+            for (BaseFigure<?> figure : figuresList)
+                figure.draw(g);
         }
     }
 

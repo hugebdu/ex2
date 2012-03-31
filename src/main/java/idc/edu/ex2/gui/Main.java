@@ -33,7 +33,6 @@ public class Main
 
         frame.add(new SidePanel(canvasPanel), BorderLayout.LINE_END);
 
-        canvasPanel.setVisible(true);
         frame.setVisible(true);
     }
 
@@ -52,13 +51,13 @@ public class Main
     private static Area createArea()
     {
         return new Area()
-                .addBeacon(Beacon(Point(0, 0), 10))
-                .addBeacon(Beacon(Point(0, 0), 20))
-                .addBeacon(Beacon(Point(0, 0), 30))
-                .addBeacon(Beacon(Point(0, 0), 40))
-                .addBeacon(Beacon(Point(0, 0), 50))
-                .addBeacon(Beacon(Point(0, 0), 60))
-                .addBeacon(Beacon(Point(0, 0), 70))
+                .addBeacon(Beacon(Point(0, 10), 10))
+                .addBeacon(Beacon(Point(0, 20), 20))
+                .addBeacon(Beacon(Point(0, 30), 30))
+                .addBeacon(Beacon(Point(0, 40), 40))
+                .addBeacon(Beacon(Point(0, 50), 50))
+                .addBeacon(Beacon(Point(0, 60), 60))
+                .addBeacon(Beacon(Point(0, 70), 70))
                 .addBeacon(Beacon(Point(98, 98), 10))
                 .addBeacon(Beacon(Point(98, 98), 20))
                 .addBeacon(Beacon(Point(98, 98), 30))
