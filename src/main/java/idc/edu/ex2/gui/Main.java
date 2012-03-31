@@ -9,6 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import static idc.edu.ex2.geometry.Beacon.Beacon;
+import static idc.edu.ex2.geometry.Point.Point;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,6 +33,12 @@ public class Main
         frame.add(new SidePanel(canvasPanel), BorderLayout.LINE_END);
 
         frame.setVisible(true);
+    }
+
+    private static Area createSimpleArea() {
+        return new Area()
+                .addBeacon(Beacon(Point(0, 50), 45))
+                .addBeacon(Beacon(Point(99, 50), 45));
     }
 
     private static WindowAdapter existApp()

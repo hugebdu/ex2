@@ -194,7 +194,7 @@ public class CanvasPanel extends JPanel
         {
             Composite originalComposite = g.getComposite();
 
-            g.setColor(Color.red);
+            g.setColor(Color.blue);
             int halfSize = CROSS_WIDTH / 2;
             g.drawLine(getGuiX() - halfSize, getGuiY(), getGuiX() + halfSize, getGuiY());
             g.drawLine(getGuiX(), getGuiY() - halfSize, getGuiX(), getGuiY() + halfSize);
@@ -203,9 +203,9 @@ public class CanvasPanel extends JPanel
 
             g.setColor(Color.black);
             int radius = scaleX(getModel().signalStrength);
-            g.drawArc(getGuiX() - radius / 2, getGuiY() - radius / 2, radius, radius, 0, 360);
-            g.setColor(Color.red);
-            g.fillArc(getGuiX() - radius / 2, getGuiY() - radius / 2, radius - 1, radius - 1, 0, 360);
+            g.drawArc(getGuiX() - radius, getGuiY() - radius, radius * 2, radius * 2, 0, 360);
+            g.setColor(Color.blue);
+            g.fillArc(getGuiX() - radius, getGuiY() - radius, radius * 2 - 1, radius * 2 - 1, 0, 360);
 
             g.setComposite(originalComposite);
         }
@@ -250,8 +250,7 @@ public class CanvasPanel extends JPanel
                 for (int y = 0; y < HEIGHT; y++)
                 {
                     Set<BeaconFigure> beacons = coverageMatrix[x][y];
-                    if (!beacons.isEmpty())
-                        segments.put(beacons, new java.awt.Point(x, y));
+                    segments.put(beacons, new java.awt.Point(x, y));
                 }
             }
         }
@@ -315,6 +314,12 @@ public class CanvasPanel extends JPanel
                 public void mousePressed(MouseEvent e)
                 {
                     System.out.println("Mouse pressed");
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e)
+                {
+                    System.out.println(28);
                 }
 
                 @Override
