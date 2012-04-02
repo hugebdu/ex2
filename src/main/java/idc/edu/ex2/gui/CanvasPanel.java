@@ -480,8 +480,11 @@ public class CanvasPanel extends JPanel
             if (largestSegment == null)
                 return;
             
+            Color prevColor = g.getColor();
+            g.setColor(Color.RED);
             PointArray2D pointsArrayShape = new PointArray2D(newArrayList(transform(largestSegment.getValue(), point2point2d())));
             pointsArrayShape.draw(g);
+            g.setColor(prevColor);
         }
 
         private Function<java.awt.Point, Point2D> point2point2d()
