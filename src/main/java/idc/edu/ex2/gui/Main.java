@@ -57,7 +57,7 @@ public class Main
     {
         Area area = new Area();
 
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 5; i++)
         {
             area.addBeacon(Beacon(new Point(0, 0), 20 * (i + 1)));
             area.addBeacon(Beacon(new Point(0, 99), 20 * (i + 1)));

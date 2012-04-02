@@ -421,11 +421,16 @@ public class CanvasPanel extends JPanel
                 {
                     for (int y = figure.getGuiY() - radius; y <= figure.getGuiY() + radius; y++)   
                     {
-                        if (isValidCoordinate(x, y))
+                        if (isValidCoordinate(x, y) && inCircle(beaconFigure.getGuiX(), beaconFigure.getGuiY(), radius, x, y))
                             coverageMatrix[x][y].add(figure);
                     }
                 }
             }
+        }
+
+        private boolean inCircle(int centerX, int centerY, int radius, int x, int y)
+        {
+            return sqrt(pow(centerX - x, 2) + pow(centerY - y, 2)) <= radius;
         }
 
         private boolean isValidCoordinate(int x, int y)
