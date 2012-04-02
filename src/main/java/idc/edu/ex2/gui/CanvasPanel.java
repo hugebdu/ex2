@@ -1,10 +1,13 @@
 package idc.edu.ex2.gui;
 
+import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import idc.edu.ex2.geometry.Area;
 import idc.edu.ex2.geometry.Beacon;
 import idc.edu.ex2.geometry.Point;
+import math.geom2d.Point2D;
+import math.geom2d.point.PointArray2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -15,6 +18,8 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.*;
 import java.util.List;
 
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -41,9 +46,17 @@ public class CanvasPanel extends JPanel
             return Float.compare(o1.getValue(), o2.getValue());
         }
     };
+    private static final Comparator<Map.Entry<Set<BeaconFigure>,Collection<java.awt.Point>>> SEGMENTS_ENTRIES_COMPARATOR = new Comparator<Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>>>()
+    {
+        public int compare(Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>> o1, Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>> o2)
+        {
+            return o1.getValue().size() - o2.getValue().size();
+        }
+    };
 
     private AreaGUI area;
     private List<MouseListener> mouseListeners = newLinkedList();
+    private List<MaxSegmentChangeListener> maxSegmentChangeListeners = newLinkedList();
 
     public CanvasPanel()
     {
@@ -83,6 +96,11 @@ public class CanvasPanel extends JPanel
     public void registerMouseListener(MouseListener listener)
     {
         this.mouseListeners.add(listener);
+    }
+    
+    public void registerMaxSegmentChangeListener(MaxSegmentChangeListener listener)
+    {
+        this.maxSegmentChangeListeners.add(listener);
     }
 
     enum Mode 
@@ -221,7 +239,8 @@ public class CanvasPanel extends JPanel
         private List<BaseFigure<?>> figuresList = newLinkedList();
         
         private BeaconFigure overElement = null;
-        
+        private Map.Entry<Set<BeaconFigure>,Collection<java.awt.Point>> largestSegment;
+
         public AreaGUI(Area area)
         {
             initMatrix();
@@ -230,6 +249,7 @@ public class CanvasPanel extends JPanel
             buildSegments();
 
             printSegments();
+            largestSegment = Collections.max(segments.asMap().entrySet(), withMaxNumberOfPoints());
         }
 
         private void printSegments()
@@ -253,6 +273,15 @@ public class CanvasPanel extends JPanel
                     segments.put(beacons, new java.awt.Point(x, y));
                 }
             }
+            largestSegment = Collections.max(segments.asMap().entrySet(), withMaxNumberOfPoints());
+
+            int maxSegmentSize = largestSegment.getValue().size();
+            fireMaxSegmentSizeChanged(maxSegmentSize);
+        }
+
+        private Comparator<Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>>> withMaxNumberOfPoints()
+        {
+            return SEGMENTS_ENTRIES_COMPARATOR;
         }
 
         @SuppressWarnings("unchecked")
@@ -442,7 +471,35 @@ public class CanvasPanel extends JPanel
         {
             for (BaseFigure<?> figure : figuresList)
                 figure.draw(g);
+
+            drawLargestSegment(g);
         }
+
+        private void drawLargestSegment(Graphics2D g)
+        {
+            if (largestSegment == null)
+                return;
+            
+            PointArray2D pointsArrayShape = new PointArray2D(newArrayList(transform(largestSegment.getValue(), point2point2d())));
+            pointsArrayShape.draw(g);
+        }
+
+        private Function<java.awt.Point, Point2D> point2point2d()
+        {
+            return new Function<java.awt.Point, Point2D>()
+            {
+                public Point2D apply(java.awt.Point input)
+                {
+                    return new Point2D(input.getX(), input.getY());
+                }
+            };
+        }
+    }
+
+    private void fireMaxSegmentSizeChanged(int maxSegmentSize)
+    {
+        for (MaxSegmentChangeListener listener : maxSegmentChangeListeners)
+            listener.onMaxSegmentCalculated(maxSegmentSize);
     }
 
     private Cursor MOVE_CURSOR()
@@ -464,6 +521,11 @@ public class CanvasPanel extends JPanel
 
         for (MouseListener listener : mouseListeners)
             listener.onMouseOver(event);
+    }
+    
+    public interface MaxSegmentChangeListener
+    {
+        void onMaxSegmentCalculated(int size);
     }
 
     public interface MouseListener

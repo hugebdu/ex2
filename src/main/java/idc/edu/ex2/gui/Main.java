@@ -27,10 +27,10 @@ public class Main
         frame.setResizable(false);
 
         CanvasPanel canvasPanel = new CanvasPanel();
-        canvasPanel.setArea(createArea());
         frame.add(canvasPanel, BorderLayout.LINE_START);
-
         frame.add(new SidePanel(canvasPanel), BorderLayout.LINE_END);
+
+        canvasPanel.setArea(createArea());
 
         frame.setVisible(true);
     }
@@ -57,7 +57,7 @@ public class Main
     {
         Area area = new Area();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 10; i++)
         {
             area.addBeacon(Beacon(new Point(0, 0), 20 * (i + 1)));
             area.addBeacon(Beacon(new Point(0, 99), 20 * (i + 1)));

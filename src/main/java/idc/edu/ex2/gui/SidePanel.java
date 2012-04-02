@@ -5,6 +5,8 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.util.EventObject;
 
+import static java.lang.String.format;
+
 /**
  * Created by IntelliJ IDEA.
  * User: daniels
@@ -20,7 +22,7 @@ public class SidePanel extends JPanel
         add(new ToolBar(), BorderLayout.PAGE_START);
         add(new MouseOverElementPanel(), BorderLayout.PAGE_END);
         add(new SegmentAreaPanel(), BorderLayout.PAGE_START);
-
+        add(new MaxSegmentSizePanel(), BorderLayout.PAGE_END);
     }
 
     class ToolBar extends JToolBar
@@ -49,6 +51,23 @@ public class SidePanel extends JPanel
     class BeaconInfoPanel extends JPanel
     {
         //TODO
+    }
+
+    class MaxSegmentSizePanel extends JPanel implements CanvasPanel.MaxSegmentChangeListener
+    {
+        private JLabel label;
+
+        public MaxSegmentSizePanel()
+        {
+            this.label = new JLabel("Max segment size: NA");
+            add(label);
+            canvasPanel.registerMaxSegmentChangeListener(this);
+        }
+
+        public void onMaxSegmentCalculated(int size)
+        {
+            label.setText(format("Max segment size: %d", size));
+        }
     }
 
     class MouseOverElementPanel extends JPanel implements CanvasPanel.MouseListener
