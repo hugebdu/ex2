@@ -18,8 +18,8 @@ public class Point
 
     public Point(double x, double y)
     {
-        checkArgument(x >= 0 && x <= MAX_WIDTH);
-        checkArgument(y >= 0 && y <= MAX_HEIGHT);
+//        checkArgument(x >= 0 && x <= MAX_WIDTH);
+//        checkArgument(y >= 0 && y <= MAX_HEIGHT);
 
         this.x = x;
         this.y = y;

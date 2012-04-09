@@ -2,6 +2,7 @@ package idc.edu.ex2.geometry;
 
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
@@ -17,6 +18,12 @@ public class Area
     public Area addBeacon(Beacon beacon)
     {
         beaconsSet.add(beacon);
+        return this;
+    }
+
+    public Area addAllBeacons(Iterable<Beacon> beacons)
+    {
+        beaconsSet.addAll(newLinkedList(beacons));
         return this;
     }
     

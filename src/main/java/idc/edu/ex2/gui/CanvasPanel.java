@@ -219,9 +219,9 @@ public class CanvasPanel extends JPanel
 
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.05f));
 
-            g.setColor(Color.black);
             int radius = scaleX(getModel().signalStrength);
             g.drawArc(getGuiX() - radius, getGuiY() - radius, radius * 2, radius * 2, 0, 360);
+            g.setColor(Color.black);
             g.setColor(Color.blue);
             g.fillArc(getGuiX() - radius, getGuiY() - radius, radius * 2 - 1, radius * 2 - 1, 0, 360);
 

@@ -15,7 +15,7 @@ public class Beacon
 
     public Beacon(Point center, double signalStrength)
     {
-        checkArgument(signalStrength > 0);
+//        checkArgument(signalStrength > 0);
 
         this.center = center;
         this.signalStrength = signalStrength;

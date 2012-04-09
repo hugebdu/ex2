@@ -2,6 +2,9 @@ package idc.edu.ex2.gui;
 
 import idc.edu.ex2.geometry.Area;
 import idc.edu.ex2.geometry.Point;
+import idc.edu.ex2.solution.AlexandersGridSolution;
+import idc.edu.ex2.solution.DanilasDoubleSpectrumSolution;
+import idc.edu.ex2.solution.InnaKatzFlowerSolution;
 
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
@@ -18,6 +21,9 @@ import static idc.edu.ex2.geometry.Point.Point;
  */
 public class Main
 {
+
+    public static final int NUM_OF_BEACONS = 14;
+
     public static void main(String[] args) throws Throwable
     {
         JFrame frame = new JFrame("Beacons GUI");
@@ -30,7 +36,9 @@ public class Main
         frame.add(canvasPanel, BorderLayout.LINE_START);
         frame.add(new SidePanel(canvasPanel), BorderLayout.LINE_END);
 
-        canvasPanel.setArea(createArea());
+        canvasPanel.setArea(new InnaKatzFlowerSolution().createSolution(NUM_OF_BEACONS));
+//        canvasPanel.setArea(new DanilasDoubleSpectrumSolution().createSolution(NUM_OF_BEACONS));
+//        canvasPanel.setArea(new AlexandersGridSolution().createSolution(NUM_OF_BEACONS));
 
         frame.setVisible(true);
     }
@@ -57,7 +65,7 @@ public class Main
     {
         Area area = new Area();
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 2; i++)
         {
             area.addBeacon(Beacon(new Point(0, 0), 20 * (i + 1)));
             area.addBeacon(Beacon(new Point(0, 99), 20 * (i + 1)));
