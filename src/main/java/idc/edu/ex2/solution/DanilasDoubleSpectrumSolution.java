@@ -1,15 +1,12 @@
 package idc.edu.ex2.solution;
 
-import com.google.common.collect.ImmutableMap;
+import static java.util.Arrays.asList;
 import idc.edu.ex2.geometry.Area;
 import idc.edu.ex2.geometry.Beacon;
 import idc.edu.ex2.geometry.Constraints;
 import idc.edu.ex2.geometry.Point;
 
 import java.util.Collection;
-import java.util.Map;
-
-import static java.util.Arrays.asList;
 
 /**
  * Created with IntelliJ IDEA.

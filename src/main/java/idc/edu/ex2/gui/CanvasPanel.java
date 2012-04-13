@@ -69,9 +69,10 @@ public class CanvasPanel extends JPanel
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
-    public void setArea(Area area)
+    public double setArea(Area area)
     {
         this.area = new AreaGUI(area);
+        return this.area.largestSegment.getValue().size();
     }
 
     @Override

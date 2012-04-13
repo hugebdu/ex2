@@ -1,6 +1,5 @@
 package idc.edu.ex2.geometry;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static idc.edu.ex2.geometry.GeometryUtils.distance;
 
 /**

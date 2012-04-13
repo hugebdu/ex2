@@ -1,18 +1,17 @@
 package idc.edu.ex2.gui;
 
+import static idc.edu.ex2.geometry.Beacon.Beacon;
+import static idc.edu.ex2.geometry.Point.Point;
 import idc.edu.ex2.geometry.Area;
 import idc.edu.ex2.geometry.Point;
-import idc.edu.ex2.solution.AlexandersGridSolution;
-import idc.edu.ex2.solution.DanilasDoubleSpectrumSolution;
+import idc.edu.ex2.solution.CenterTargetSolution;
 import idc.edu.ex2.solution.InnaKatzFlowerSolution;
 
-import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import static idc.edu.ex2.geometry.Beacon.Beacon;
-import static idc.edu.ex2.geometry.Point.Point;
+import javax.swing.JFrame;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,7 +21,7 @@ import static idc.edu.ex2.geometry.Point.Point;
 public class Main
 {
 
-    public static final int NUM_OF_BEACONS = 14;
+    public static final int NUM_OF_BEACONS = 10;
 
     public static void main(String[] args) throws Throwable
     {
@@ -36,9 +35,9 @@ public class Main
         frame.add(canvasPanel, BorderLayout.LINE_START);
         frame.add(new SidePanel(canvasPanel), BorderLayout.LINE_END);
 
-        canvasPanel.setArea(new InnaKatzFlowerSolution().createSolution(NUM_OF_BEACONS));
-//        canvasPanel.setArea(new DanilasDoubleSpectrumSolution().createSolution(NUM_OF_BEACONS));
-//        canvasPanel.setArea(new AlexandersGridSolution().createSolution(NUM_OF_BEACONS));
+        //canvasPanel.setArea(new InnaKatzFlowerSolution().createSolution(NUM_OF_BEACONS));
+        double maxSize = canvasPanel.setArea(new InnaKatzFlowerSolution().createSolution(NUM_OF_BEACONS));
+
 
         frame.setVisible(true);
     }

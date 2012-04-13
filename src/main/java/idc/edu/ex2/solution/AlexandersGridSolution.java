@@ -1,16 +1,13 @@
 package idc.edu.ex2.solution;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+import static com.google.common.collect.Iterables.transform;
 import idc.edu.ex2.geometry.Area;
 import idc.edu.ex2.geometry.Beacon;
 import idc.edu.ex2.geometry.Constraints;
 import idc.edu.ex2.geometry.Point;
 
-import javax.annotation.Nullable;
-
-import static com.google.common.collect.Iterables.transform;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Created with IntelliJ IDEA.
