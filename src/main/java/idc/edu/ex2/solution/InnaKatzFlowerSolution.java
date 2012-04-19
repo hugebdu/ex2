@@ -2,15 +2,13 @@ package idc.edu.ex2.solution;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import idc.edu.ex2.geometry.Area;
-import idc.edu.ex2.geometry.Beacon;
-import idc.edu.ex2.geometry.Constraints;
-import idc.edu.ex2.geometry.Point;
+import com.google.common.collect.Lists;
+import idc.edu.ex2.Constraints;
+import idc.edu.ex2.Plot;
 
-import java.util.Collection;
-
-import static com.google.common.collect.Iterables.transform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,35 +19,40 @@ import static com.google.common.collect.Iterables.transform;
  */
 public class InnaKatzFlowerSolution implements Solution {
 
-    public static final Point AREA_CENTER = new Point(Constraints.MAX_WIDTH / 2, Constraints.MAX_HEIGHT / 2);
+    public static final Point2D AREA_CENTER = new Point2D.Double(Constraints.MAX_WIDTH / 2, Constraints.MAX_HEIGHT / 2);
 
     @Override
-    public Area createSolution(int numOfBeacons) {
-        Area solution = new Area().addAllBeacons(transform(getBeaconCenters(numOfBeacons - 3), toBeacons(numOfBeacons - 3)));
+    public Plot createSolution(int numOfBeacons) {
 
-        solution.addBeacon(Beacon.Beacon(AREA_CENTER, 35))
-                .addBeacon(Beacon.Beacon(AREA_CENTER, 45))
-                .addBeacon(Beacon.Beacon(AREA_CENTER, 55));
+        Plot solution = new Plot();
+
+        solution.beacons.addAll(Lists.transform(getBeaconCenters(numOfBeacons - 3), toBeacons(numOfBeacons - 3)));
+
+        solution.beacons.addAll(ImmutableList.<Ellipse2D>builder()
+                .add(Plot.Beacon(AREA_CENTER, 35))
+                .add(Plot.Beacon(AREA_CENTER, 45))
+                .add(Plot.Beacon(AREA_CENTER, 60))
+                .build());
 
         return solution;
     }
 
-    private Function<Point, Beacon> toBeacons(final int numOfBeacons) {
-        return new Function<Point, Beacon>() {
+    private Function<Point2D, Ellipse2D> toBeacons(final int numOfBeacons) {
+        return new Function<Point2D, Ellipse2D>() {
             @Override
-            public Beacon apply(Point point) {
-                return new Beacon(point, getSignalStrength(numOfBeacons));
+            public Ellipse2D apply(Point2D point) {
+                return Plot.Beacon(point, getSignalStrength(numOfBeacons));
             }
         };
     }
 
-    private Collection<Point> getBeaconCenters(int numOfBeacons)
+    private List<Point2D> getBeaconCenters(int numOfBeacons)
     {
         final double theta = Math.PI * 2 / numOfBeacons;
 
         double angle = 0;
 
-        ImmutableList.Builder<Point> builder = ImmutableList.builder();
+        ImmutableList.Builder<Point2D> builder = ImmutableList.builder();
 
         for (int i = 0; i < numOfBeacons; i++)
         {
@@ -60,9 +63,9 @@ public class InnaKatzFlowerSolution implements Solution {
         return builder.build();
     }
 
-    private Point makeBeaconCenter(double theta) {
-        return Point.Point(AREA_CENTER.x + getDistanceFromCenter() * Math.cos(theta),
-                AREA_CENTER.y + getDistanceFromCenter() * Math.sin(theta));
+    private Point2D makeBeaconCenter(double theta) {
+        return new Point2D.Double(AREA_CENTER.getX() + getDistanceFromCenter() * Math.cos(theta),
+                AREA_CENTER.getY() + getDistanceFromCenter() * Math.sin(theta));
     }
 
     private double getDistanceFromCenter()

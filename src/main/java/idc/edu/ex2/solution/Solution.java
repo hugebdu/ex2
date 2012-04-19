@@ -1,6 +1,6 @@
 package idc.edu.ex2.solution;
 
-import idc.edu.ex2.geometry.Area;
+import idc.edu.ex2.Plot;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,5 +11,5 @@ import idc.edu.ex2.geometry.Area;
  */
 public interface Solution
 {
-    Area createSolution(int numOfBeacons);
+    Plot createSolution(int numOfBeacons);
 }

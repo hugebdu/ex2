@@ -1,12 +1,13 @@
 package idc.edu.ex2.solution;
 
-import static java.util.Arrays.asList;
-import idc.edu.ex2.geometry.Area;
-import idc.edu.ex2.geometry.Beacon;
-import idc.edu.ex2.geometry.Constraints;
-import idc.edu.ex2.geometry.Point;
+import idc.edu.ex2.Constraints;
+import idc.edu.ex2.Plot;
 
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.Collection;
+
+import static java.util.Arrays.asList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,20 +18,24 @@ import java.util.Collection;
  */
 public class DanilasDoubleSpectrumSolution implements Solution {
     @Override
-    public Area createSolution(int numOfBeacons) {
+    public Plot createSolution(int numOfBeacons) {
 
-        Area area = new Area();
+        Plot plot = new Plot();
 
         for (SingularPointDescriptor descriptor : getSingularPointDescriptors(numOfBeacons))
         {
             for (int i = 0; i < descriptor.numOfBeacons; i++)
             {
-                area.addBeacon(Beacon.Beacon(descriptor.center,
-                        descriptor.signalStrengthProvider.getSignalStrength(descriptor.center, i, descriptor.numOfBeacons)));
+                double signalStrength = descriptor.signalStrengthProvider.getSignalStrength(descriptor.center, i, descriptor.numOfBeacons);
+                plot.beacons.add(new Ellipse2D.Double(
+                        descriptor.center.getX() - signalStrength,
+                        descriptor.center.getY() - signalStrength,
+                        signalStrength * 2,
+                        signalStrength * 2));
             }
         }
 
-        return area;
+        return plot;
     }
 
     private Collection<SingularPointDescriptor> getSingularPointDescriptors(int numOfBeacons)
@@ -39,21 +44,21 @@ public class DanilasDoubleSpectrumSolution implements Solution {
         final SignalStrengthProvider signalStrengthProvider = new LinearSignalStrengthProvider(Constraints.MAX_WIDTH / (numOfBeacons /  Math.E));
 
         return asList(
-            new SingularPointDescriptor(Point.Point(0, 0),
+            new SingularPointDescriptor(new Point2D.Double(0, 0),
                 (int) Math.floor(numOfBeacons / 2), signalStrengthProvider),
 
-            new SingularPointDescriptor(Point.Point(0, Constraints.MAX_HEIGHT),
+            new SingularPointDescriptor(new Point2D.Double(0, Constraints.MAX_HEIGHT),
                 (int) Math.floor(numOfBeacons / 2), signalStrengthProvider)
         );
     }
 
     class SingularPointDescriptor
     {
-        final Point center;
+        final Point2D center;
         final int numOfBeacons;
         final SignalStrengthProvider signalStrengthProvider;
 
-        SingularPointDescriptor(Point center, int numOfBeacons, SignalStrengthProvider signalStrengthProvider) {
+        SingularPointDescriptor(Point2D center, int numOfBeacons, SignalStrengthProvider signalStrengthProvider) {
             this.center = center;
             this.numOfBeacons = numOfBeacons;
             this.signalStrengthProvider = signalStrengthProvider;
@@ -69,14 +74,14 @@ public class DanilasDoubleSpectrumSolution implements Solution {
         }
 
         @Override
-        public double getSignalStrength(Point center, int index, int totalBeacons) {
+        public double getSignalStrength(Point2D center, int index, int totalBeacons) {
             return (index + 1) * coefficient;
         }
     }
 
     interface SignalStrengthProvider
     {
-        double getSignalStrength(Point center, int index, int totalBeacons);
+        double getSignalStrength(Point2D center, int index, int totalBeacons);
     }
 
 

@@ -1,15 +1,15 @@
 package idc.edu.ex2.solution;
 
-import idc.edu.ex2.geometry.Area;
-import idc.edu.ex2.geometry.Beacon;
-import idc.edu.ex2.geometry.Constraints;
-import idc.edu.ex2.geometry.Point;
+import idc.edu.ex2.Constraints;
+import idc.edu.ex2.Plot;
+
+import java.awt.geom.Point2D;
 
 public class SymetricFlowerSolution implements Solution {
 
 	@Override
-	public Area createSolution(int numOfBeacons) {
-		Area a = new Area();
+	public Plot createSolution(int numOfBeacons) {
+		Plot a = new Plot();
 
 		double edge = 100/3;
 		double height = Math.sqrt(edge*edge - edge*edge/4);
@@ -39,10 +39,10 @@ public class SymetricFlowerSolution implements Solution {
 		return a;
 	}
 
-	private void putLineOfBecons(Area a, int numOfBeconsInLine, double edge, double thirdHeight,
+	private void putLineOfBecons(Plot a, int numOfBeconsInLine, double edge, double thirdHeight,
 			double radius, double offset, int j) {
 		for (int i=0; i<numOfBeconsInLine; i++) {
-			a.addBeacon(new Beacon(new Point(offset+i*edge, Constraints.MAX_HEIGHT-thirdHeight*j), radius));
+			a.beacons.add(Plot.Beacon(new Point2D.Double(offset + i * edge, Constraints.MAX_HEIGHT - thirdHeight * j), radius));
 		}
 	}
 

@@ -1,78 +1,44 @@
 package idc.edu.ex2.gui;
 
-import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import idc.edu.ex2.geometry.Area;
-import idc.edu.ex2.geometry.Beacon;
-import idc.edu.ex2.geometry.Point;
-import math.geom2d.Point2D;
-import math.geom2d.point.PointArray2D;
+import idc.edu.ex2.Plot;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.util.*;
-import java.util.List;
-
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.lang.Math.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.RoundRectangle2D;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
  * User: daniels
- * Date: 3/25/12
+ * Date: 4/15/12
  */
 public class CanvasPanel extends JPanel
 {
-    private static final int WIDTH = 600;
-    private static final int HEIGHT = 600;
-    private static final Dimension DIMENSION = new Dimension(WIDTH, HEIGHT);
-    private static final int PADDING_SIZE = 5;
-    private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
-    private static final int POINT_RADIUS = 3;
-    private static final int CROSS_WIDTH = 4;
-    private static final Comparator<Map.Entry<BeaconFigure,Float>> WEIGHT_COMPARATOR = new Comparator<Map.Entry<BeaconFigure, Float>>()
-    {
-        public int compare(Map.Entry<BeaconFigure, Float> o1, Map.Entry<BeaconFigure, Float> o2)
-        {
-            return Float.compare(o1.getValue(), o2.getValue());
-        }
-    };
-    private static final Comparator<Map.Entry<Set<BeaconFigure>,Collection<java.awt.Point>>> SEGMENTS_ENTRIES_COMPARATOR = new Comparator<Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>>>()
-    {
-        public int compare(Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>> o1, Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>> o2)
-        {
-            return o1.getValue().size() - o2.getValue().size();
-        }
-    };
+    private static final Dimension DIMENSION = new Dimension(600, 600);
+    private static final double POINT_WIDTH_HEIGHT = 0.3;
+    private static final int POINT_ARCHW = 1;
 
-    private AreaGUI area;
-    private List<MouseListener> mouseListeners = newLinkedList();
-    private List<MaxSegmentChangeListener> maxSegmentChangeListeners = newLinkedList();
+    private Plot plot = new Plot();
 
     public CanvasPanel()
     {
-        setBackground(Color.WHITE);
-        setOpaque(true);
-
+        setBackground(Color.white);
         setPreferredSize(DIMENSION);
         setSize(DIMENSION);
-
-        setBorder(BorderFactory.createLineBorder(Color.BLACK));
     }
 
-    public double setArea(Area area)
+    public Plot getPlot()
     {
-        this.area = new AreaGUI(area);
-        return this.area.largestSegment.getValue().size();
+        return plot;
+    }
+
+    public void setPlot(Plot plot)
+    {
+        this.plot = plot;
     }
 
     @Override
@@ -80,461 +46,54 @@ public class CanvasPanel extends JPanel
     {
         super.paintComponent(g);
 
-        if (area != null)
-            area.draw((Graphics2D) g);
+        Graphics2D gg = (Graphics2D) g.create();
+        gg.scale(6, 6);
+
+        drawBeacons(gg);
+
+        drawSamplingPoints(gg);
+
+        drawLargestSegment(gg);
+
+        gg.dispose();
     }
 
-    private int scaleX(double x)
+    private void drawSamplingPoints(Graphics2D gg)
     {
-        return (int) round(x * 6);
-    }
-    
-    private int scaleY(double y)
-    {
-        return (int) round(HEIGHT - y * 6);
+        gg.setColor(Color.gray);
+
+        for (Point2D point : plot.samplingPoints)
+            drawPoint(gg, point, POINT_WIDTH_HEIGHT);
     }
 
-    public void registerMouseListener(MouseListener listener)
+    private void drawPoint(Graphics2D gg, Point2D point, double size)
     {
-        this.mouseListeners.add(listener);
-    }
-    
-    public void registerMaxSegmentChangeListener(MaxSegmentChangeListener listener)
-    {
-        this.maxSegmentChangeListeners.add(listener);
+        gg.fill(new RoundRectangle2D.Double(point.getX(), point.getY(),
+                size, size,
+                POINT_ARCHW, POINT_ARCHW));
     }
 
-    enum Mode 
+    private void drawBeacons(Graphics2D gg)
     {
-        NA,
-        Hover,
-        Selected
-    }
-    
-    abstract class BaseFigure<T>
-    {
-        private final T model;
-        private int guiX;
-        private int guiY;
-        private Mode mode = Mode.NA;
+        gg.setColor(Color.red);
 
-        public BaseFigure(T model, int guiX, int guiY)
-        {
-            this.model = model;
-            this.guiY = guiY;
-            this.guiX = guiX;
-        }
+        Composite previousComposite = gg.getComposite();
+        gg.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.02f));
 
-        public abstract void draw(Graphics2D g);
+        for (Ellipse2D beacon : plot.beacons)
+            gg.fill(beacon);
 
-        public Mode getMode()
-        {
-            return mode;
-        }
-
-        public void setMode(Mode mode)
-        {
-            this.mode = mode;
-        }
-
-        public T getModel()
-        {
-            return model;
-        }
-
-        public int getGuiX()
-        {
-            return guiX;
-        }
-
-        public int getGuiY()
-        {
-            return guiY;
-        }
-
-        public void setGuiX(int guiX)
-        {
-            this.guiX = guiX;
-            //TODO: adjust model
-        }
-
-        public void setGuiY(int guiY)
-        {
-            this.guiY = guiY;
-            //TODO: adjust model
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return model.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (!(obj instanceof BaseFigure))
-                return false;
-            
-            return model.equals(((BaseFigure)obj).getModel());
-        }
-
-        @Override
-        public String toString()
-        {
-            return model.toString();
-        }
-    }
-    
-    class PointFigure extends BaseFigure<Point>
-    {
-        public PointFigure(Point point)
-        {
-            super(point, scaleX(point.x), scaleY(point.y));
-        }
-
-        @Override
-        public void draw(Graphics2D g)
-        {
-            g.setColor(Color.BLUE);
-            g.fillArc(getGuiX() + POINT_RADIUS / 2, getGuiY() + POINT_RADIUS / 2, POINT_RADIUS, POINT_RADIUS, 0, 360);
-        }
-    }
-    
-    class BeaconFigure extends BaseFigure<Beacon>
-    {
-        public BeaconFigure(Beacon beacon)
-        {
-            super(beacon, scaleX(beacon.center.x), scaleY(beacon.center.y));
-        }
-        
-        @Override
-        public void draw(Graphics2D g)
-        {
-            Composite originalComposite = g.getComposite();
-
-            g.setColor(Color.blue);
-            int halfSize = CROSS_WIDTH / 2;
-            g.drawLine(getGuiX() - halfSize, getGuiY(), getGuiX() + halfSize, getGuiY());
-            g.drawLine(getGuiX(), getGuiY() - halfSize, getGuiX(), getGuiY() + halfSize);
-
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.05f));
-
-            int radius = scaleX(getModel().signalStrength);
-            g.drawArc(getGuiX() - radius, getGuiY() - radius, radius * 2, radius * 2, 0, 360);
-            g.setColor(Color.black);
-            g.setColor(Color.blue);
-            g.fillArc(getGuiX() - radius, getGuiY() - radius, radius * 2 - 1, radius * 2 - 1, 0, 360);
-
-            g.setComposite(originalComposite);
-        }
-    }
-    
-    class AreaGUI 
-    {
-        private Map<BeaconFigure, Float>[][] matrix;
-        private Set<BeaconFigure>[][] coverageMatrix;
-
-        private Multimap<Set<BeaconFigure>, java.awt.Point> segments;
-        
-        private List<BaseFigure<?>> figuresList = newLinkedList();
-        
-        private BeaconFigure overElement = null;
-        private Map.Entry<Set<BeaconFigure>,Collection<java.awt.Point>> largestSegment;
-
-        public AreaGUI(Area area)
-        {
-            initMatrix();
-            initFigures(area);
-            registerMouseMotionListener();
-            buildSegments();
-
-            printSegments();
-            largestSegment = Collections.max(segments.asMap().entrySet(), withMaxNumberOfPoints());
-        }
-
-        private void printSegments()
-        {
-            int index = 1;
-
-            for (Collection<java.awt.Point> points : segments.asMap().values())
-                System.out.println(String.format("%d. %d points", index++, points.size()));
-        }
-
-        //TODO: handle beacon movements
-        @SuppressWarnings("unchecked")
-        private void buildSegments()
-        {
-            segments = HashMultimap.create();
-            for (int x = 0; x < WIDTH; x++)
-            {
-                for (int y = 0; y < HEIGHT; y++)
-                {
-                    Set<BeaconFigure> beacons = coverageMatrix[x][y];
-                    segments.put(beacons, new java.awt.Point(x, y));
-                }
-            }
-            largestSegment = Collections.max(segments.asMap().entrySet(), withMaxNumberOfPoints());
-
-            int maxSegmentSize = largestSegment.getValue().size();
-            fireMaxSegmentSizeChanged(maxSegmentSize);
-        }
-
-        private Comparator<Map.Entry<Set<BeaconFigure>, Collection<java.awt.Point>>> withMaxNumberOfPoints()
-        {
-            return SEGMENTS_ENTRIES_COMPARATOR;
-        }
-
-        @SuppressWarnings("unchecked")
-        private void initMatrix()
-        {
-            matrix = new Map[WIDTH][HEIGHT];
-            coverageMatrix = new Set[WIDTH][HEIGHT];
-
-            for (int i = 0; i < matrix.length; i++)
-            {
-                for (int j = 0; j < matrix[i].length; j++)
-                {
-                    matrix[i][j] = newHashMap();
-                    coverageMatrix[i][j] = newHashSet();
-                }
-            }
-        }
-
-        private void registerMouseMotionListener()
-        {
-            addMouseMotionListener(new MouseMotionAdapter()
-            {
-                @Override
-                public void mouseMoved(MouseEvent e)
-                {
-                    Map<BeaconFigure, Float> map = matrix[e.getX()][e.getY()];
-                    
-                    if (!map.isEmpty())
-                    {
-                        BeaconFigure figure = Collections.max(map.entrySet(), weightComparator()).getKey();
-                        fireMouseOver(figure.getModel());
-                        overElement = figure;
-                        setFingerCursor();
-                    }
-                    else
-                    {
-                        if (overElement != null)
-                        {
-                            fireMouseOut(overElement.getModel());
-                            overElement = null;
-                            resetCursor();
-                        }
-                    }
-                }
-
-                @Override
-                public void mouseDragged(MouseEvent e)
-                {
-                    System.out.println(e.getLocationOnScreen());
-                    //TODO
-                    if (overElement != null)
-                        setMoveCursor();
-                }
-            });
-
-            addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mousePressed(MouseEvent e)
-                {
-                    System.out.println("Mouse pressed");
-                }
-
-                @Override
-                public void mouseClicked(MouseEvent e)
-                {
-                    System.out.println(28);
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e)
-                {
-                    System.out.println("Mouse released");
-                    //TODO
-                    resetCursor();
-                    
-                    if (overElement != null)
-                    {
-                        clearFigureMarker(overElement);
-                        overElement.setGuiX(e.getX());
-                        overElement.setGuiY(e.getY());
-                        placeFigureMarker(overElement);
-                        overElement = null;
-                        CanvasPanel.this.repaint();
-                        //TODO
-                    }
-                }
-            });
-        }
-
-        private Comparator<? super Map.Entry<BeaconFigure, Float>> weightComparator()
-        {
-            return WEIGHT_COMPARATOR;
-        }
-
-        private void setMoveCursor()
-        {
-            setCursor(MOVE_CURSOR());
-        }
-
-        private void resetCursor()
-        {
-            setCursor(Cursor.getDefaultCursor());
-        }
-
-        private void setFingerCursor()
-        {
-            setCursor(HAND_CURSOR);
-        }
-
-        private void initFigures(Area area)
-        {
-            for (Beacon beacon : area.beaconsSet)
-            {
-                BeaconFigure figure = new BeaconFigure(beacon);
-                figuresList.add(figure);
-                placeFigureMarker(figure);
-            }
-        }
-
-        private void clearFigureMarker(BaseFigure figure)
-        {
-            for (int x = figure.getGuiX() - PADDING_SIZE; x < figure.getGuiX() + PADDING_SIZE; x++)
-                for (int y = figure.getGuiY() - PADDING_SIZE; y < figure.getGuiY() + PADDING_SIZE; y++)
-                    if (isValidCoordinate(x, y))
-                        matrix[x][y].remove(figure);
-
-            if (figure instanceof BeaconFigure)
-            {
-                BeaconFigure beaconFigure = (BeaconFigure) figure;
-                int radius = scaleX(beaconFigure.getModel().signalStrength);
-                for (int x = figure.getGuiX() - radius; x <= figure.getGuiX() + radius; x++)
-                {
-                    for (int y = figure.getGuiY() - radius; y <= figure.getGuiY() + radius; y++)
-                    {
-                        if (isValidCoordinate(x, y))
-                            coverageMatrix[x][y].remove(figure);
-                    }
-                }
-            }
-        }
-
-        private void placeFigureMarker(BeaconFigure figure)
-        {
-            for (int x = figure.getGuiX() - PADDING_SIZE; x < figure.getGuiX() + PADDING_SIZE; x++)
-            {
-                for (int y = figure.getGuiY() - PADDING_SIZE; y < figure.getGuiY() + PADDING_SIZE; y++)
-                {
-                    if (isValidCoordinate(x, y))
-                    {
-                        Map<BeaconFigure, Float> map = matrix[x][y];
-                        double distance = sqrt(pow(x - figure.getGuiX(), 2) +
-                                pow(y - figure.getGuiY(), 2));
-                        
-                        float weight = (float) (PADDING_SIZE - distance); 
-                        map.put(figure, weight);
-                    }
-                }
-            }
-            
-            if (figure instanceof BeaconFigure)
-            {
-                BeaconFigure beaconFigure = (BeaconFigure) figure;
-                int radius = scaleX(beaconFigure.getModel().signalStrength);
-                for (int x = figure.getGuiX() - radius; x <= figure.getGuiX() + radius; x++)
-                {
-                    for (int y = figure.getGuiY() - radius; y <= figure.getGuiY() + radius; y++)   
-                    {
-                        if (isValidCoordinate(x, y) && inCircle(beaconFigure.getGuiX(), beaconFigure.getGuiY(), radius, x, y))
-                            coverageMatrix[x][y].add(figure);
-                    }
-                }
-            }
-        }
-
-        private boolean inCircle(int centerX, int centerY, int radius, int x, int y)
-        {
-            return sqrt(pow(centerX - x, 2) + pow(centerY - y, 2)) <= radius;
-        }
-
-        private boolean isValidCoordinate(int x, int y)
-        {
-            return x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT;
-        }
-
-        public void draw(Graphics2D g)
-        {
-            for (BaseFigure<?> figure : figuresList)
-                figure.draw(g);
-
-            drawLargestSegment(g);
-        }
-
-        private void drawLargestSegment(Graphics2D g)
-        {
-            if (largestSegment == null)
-                return;
-            
-            Color prevColor = g.getColor();
-            g.setColor(Color.RED);
-            PointArray2D pointsArrayShape = new PointArray2D(newArrayList(transform(largestSegment.getValue(), point2point2d())));
-            pointsArrayShape.draw(g);
-            g.setColor(prevColor);
-        }
-
-        private Function<java.awt.Point, Point2D> point2point2d()
-        {
-            return new Function<java.awt.Point, Point2D>()
-            {
-                public Point2D apply(java.awt.Point input)
-                {
-                    return new Point2D(input.getX(), input.getY());
-                }
-            };
-        }
+        gg.setComposite(previousComposite);
     }
 
-    private void fireMaxSegmentSizeChanged(int maxSegmentSize)
+    private void drawLargestSegment(Graphics2D gg)
     {
-        for (MaxSegmentChangeListener listener : maxSegmentChangeListeners)
-            listener.onMaxSegmentCalculated(maxSegmentSize);
-    }
+        Map.Entry<BitSet,Collection<Point2D>> maxSegment = plot.calculateAndGetLargestSegment();
+        System.out.println(String.format("Largest segment size (pts): %d", maxSegment.getValue().size()));
 
-    private Cursor MOVE_CURSOR()
-    {
-        return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-    }
+        gg.setColor(Color.green);
 
-    private void fireMouseOut(Object model)
-    {
-        EventObject event = new EventObject(model);
-
-        for (MouseListener listener : mouseListeners)
-            listener.onMouseOut(event);
-    }
-
-    private void fireMouseOver(Object model)
-    {
-        EventObject event = new EventObject(model);
-
-        for (MouseListener listener : mouseListeners)
-            listener.onMouseOver(event);
-    }
-    
-    public interface MaxSegmentChangeListener
-    {
-        void onMaxSegmentCalculated(int size);
-    }
-
-    public interface MouseListener
-    {
-        void onMouseOver(EventObject event);
-        void onMouseOut(EventObject event);
+        for (Point2D point : maxSegment.getValue())
+            drawPoint(gg, point, POINT_WIDTH_HEIGHT * 2);
     }
 }

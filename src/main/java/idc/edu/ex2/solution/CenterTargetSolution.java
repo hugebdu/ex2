@@ -1,22 +1,22 @@
 package idc.edu.ex2.solution;
 
 
-import idc.edu.ex2.geometry.Area;
-import idc.edu.ex2.geometry.Beacon;
-import idc.edu.ex2.geometry.Constraints;
-import idc.edu.ex2.geometry.Point;
+import idc.edu.ex2.Constraints;
+import idc.edu.ex2.Plot;
+
+import java.awt.geom.Point2D;
 
 public class CenterTargetSolution implements Solution {
 
 	@Override
-	public Area createSolution(int numOfBeacons) {
+	public Plot createSolution(int numOfBeacons) {
 
-		Area a = new Area();
-		Point centerPoint = getCenterPoint();
+		Plot a = new Plot();
+		Point2D centerPoint = getCenterPoint();
 
 		for (int i=1; i<numOfBeacons+1; i++) {
 			double radius = computeRadiusRelativeToNumOfPointsAndPos(numOfBeacons,i,50);
-			a.addBeacon(new Beacon(centerPoint, radius));
+			a.beacons.add(Plot.Beacon(centerPoint, radius));
 		}
 		
 		double smallestInterval = 50-computeRadiusRelativeToNumOfPointsAndPos(numOfBeacons, numOfBeacons-1, 50);
@@ -25,7 +25,7 @@ public class CenterTargetSolution implements Solution {
 
 		for (int i=1; i<numOfExtraIter; i++) {
 			double radius = 50+i*smallestInterval;
-			a.addBeacon(new Beacon(centerPoint, radius));
+			a.beacons.add(Plot.Beacon(centerPoint, radius));
 		}
 		
 		return a;
@@ -37,8 +37,8 @@ public class CenterTargetSolution implements Solution {
 		return Math.sqrt(Math.pow(halfmMaxHeight, 2) + Math.pow(halfmMaxHeight, 2));
 	}
 	
-	private Point getCenterPoint() {		
-		return new Point(Constraints.MAX_WIDTH/2, Constraints.MAX_HEIGHT/2);
+	private Point2D getCenterPoint() {		
+		return new Point2D.Double(Constraints.MAX_WIDTH/2, Constraints.MAX_HEIGHT/2);
 	}
 	
 	private double computeSmallestRadius(int numOfPoints, double bigRadius) {

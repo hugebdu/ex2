@@ -1,4 +1,4 @@
-package idc.edu.ex2.geometry;
+package idc.edu.ex2;
 
 /**
  * Created by IntelliJ IDEA.
