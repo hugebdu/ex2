@@ -1,7 +1,5 @@
 package idc.edu.ex2.gui;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import idc.edu.ex2.Constraints;
@@ -12,7 +10,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.net.URL;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -80,6 +77,8 @@ public class OptionsPanel extends JPanel
                 (String) pointsFile.getSelectedItem(),
                 64));
     }
+
+
 
     private JButton createCalculateButton()
     {

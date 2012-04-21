@@ -109,10 +109,20 @@ public class CanvasPanel extends JPanel
         gg.setColor(Color.red);
 
         Composite previousComposite = gg.getComposite();
-        gg.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.02f));
+        AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.02f);
+        
+        gg.setStroke(new BasicStroke(0.1f));
 
         for (Ellipse2D beacon : plot.beacons)
+        {
+            gg.setComposite(alphaComposite);
+            gg.setColor(Color.red);
             gg.fill(beacon);
+            
+            gg.setComposite(previousComposite);
+            gg.setColor(Color.gray);
+            gg.draw(beacon);
+        }
 
         gg.setComposite(previousComposite);
     }

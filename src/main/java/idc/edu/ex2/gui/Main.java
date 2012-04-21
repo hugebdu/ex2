@@ -61,6 +61,7 @@ public class Main
 
         frame.add(canvasPanel, BorderLayout.LINE_START);
         frame.add(optionsPanel, BorderLayout.LINE_END);
+        frame.getRootPane().setDefaultButton(optionsPanel.calculateButton);
 
         frame.pack();
         frame.setVisible(true);
