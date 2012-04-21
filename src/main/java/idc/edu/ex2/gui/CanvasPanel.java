@@ -2,14 +2,20 @@ package idc.edu.ex2.gui;
 
 import idc.edu.ex2.Plot;
 
-import javax.swing.JPanel;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Map;
+
+import javax.swing.JPanel;
 
 /**
  * Created by IntelliJ IDEA.
@@ -89,7 +95,7 @@ public class CanvasPanel extends JPanel
     private void drawLargestSegment(Graphics2D gg)
     {
         Map.Entry<BitSet,Collection<Point2D>> maxSegment = plot.calculateAndGetLargestSegment();
-        System.out.println(String.format("Largest segment size (pts): %d", maxSegment.getValue().size()));
+        System.out.println(String.format("Largest segment size for %d becons is (pts): %d", plot.beacons.size(),maxSegment.getValue().size()));
 
         gg.setColor(Color.green);
 

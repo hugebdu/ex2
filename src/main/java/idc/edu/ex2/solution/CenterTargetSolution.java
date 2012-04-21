@@ -48,7 +48,6 @@ public class CenterTargetSolution implements Solution {
 	private double computeRadiusRelativeToNumOfPointsAndPos(int numOfPoints, int position, double bigRadius) {
 		double d = Math.sqrt(position);
 		double e = Math.sqrt(numOfPoints);
-		System.out.println("ss");
 		return (d / e) * bigRadius;
 	}
 }

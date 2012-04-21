@@ -25,13 +25,36 @@ public class InnaKatzFlowerSolution implements Solution {
     public Plot createSolution(int numOfBeacons) {
 
         Plot solution = new Plot();
+        
+    	if (numOfBeacons == 1) {
+    		solution.beacons.addAll(ImmutableList.<Ellipse2D>builder()
+                    .add(Plot.Beacon(AREA_CENTER, 40)).build());
+    		return solution;
+    	}
+    	
+    	else if (numOfBeacons == 2) {
+       		solution.beacons.addAll(ImmutableList.<Ellipse2D>builder()
+                    .add(Plot.Beacon(AREA_CENTER, 46)).add(Plot.Beacon(AREA_CENTER, 32.48)).build());
+    		return solution;
+    	}
+    	
+    	//26 is the last good one
+    	
+    	int helperCirclesNumber = (numOfBeacons < 26) ? 0 : 7;
 
-        solution.beacons.addAll(Lists.transform(getBeaconCenters(numOfBeacons - 3), toBeacons(numOfBeacons - 3)));
-
+        solution.beacons.addAll(Lists.transform(getBeaconCenters(numOfBeacons - 7), toBeacons(numOfBeacons - 7)));
+//40 49 57 63-64
+        //42 48 55 62-32
+        
+        //32 39 47 53 58 63 -32
         solution.beacons.addAll(ImmutableList.<Ellipse2D>builder()
-                .add(Plot.Beacon(AREA_CENTER, 35))
-                .add(Plot.Beacon(AREA_CENTER, 45))
-                .add(Plot.Beacon(AREA_CENTER, 60))
+                .add(Plot.Beacon(AREA_CENTER, 31))
+                .add(Plot.Beacon(AREA_CENTER, 38))
+                .add(Plot.Beacon(AREA_CENTER, 44))
+                .add(Plot.Beacon(AREA_CENTER, 49))
+                .add(Plot.Beacon(AREA_CENTER, 54))
+                .add(Plot.Beacon(AREA_CENTER, 59))
+                .add(Plot.Beacon(AREA_CENTER, 63))
                 .build());
 
         return solution;
@@ -50,7 +73,7 @@ public class InnaKatzFlowerSolution implements Solution {
     {
         final double theta = Math.PI * 2 / numOfBeacons;
 
-        double angle = 0;
+        double angle =  0 ;
 
         ImmutableList.Builder<Point2D> builder = ImmutableList.builder();
 
@@ -70,13 +93,13 @@ public class InnaKatzFlowerSolution implements Solution {
 
     private double getDistanceFromCenter()
     {
-        //TODO:
-        return 50d;
+
+        return 47;
     }
 
     private double getSignalStrength(int numOfPoints)
     {
-        //TODO: do it wiselly
-        return 55d;
+
+    	return 49;
     }
 }
