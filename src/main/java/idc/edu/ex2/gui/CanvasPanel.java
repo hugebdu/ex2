@@ -9,6 +9,7 @@ import idc.edu.ex2.solution.Solution;
 import javax.swing.JPanel;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.BitSet;
@@ -28,6 +29,7 @@ public class CanvasPanel extends JPanel
     private static final Dimension DIMENSION = new Dimension(600, 600);
     private static final double POINT_WIDTH_HEIGHT = 0.3;
     private static final int POINT_ARCHW = 1;
+    private static final double CROSS_WIDTH = 0.25;
 
     final EventBus eventBus;
 
@@ -120,9 +122,14 @@ public class CanvasPanel extends JPanel
         Map.Entry<BitSet,Collection<Point2D>> maxSegment = plot.calculateAndGetLargestSegment();
         int size = maxSegment.getValue().size();
         eventBus.post(new OptionsPanel.MaxSegmentChangedEvent(size));
+
         gg.setColor(Color.green);
 
+        gg.setStroke(new BasicStroke(0.2f));
         for (Point2D point : maxSegment.getValue())
-            drawPoint(gg, point, POINT_WIDTH_HEIGHT * 2);
+        {
+            gg.draw(new Line2D.Double(point.getX() - CROSS_WIDTH, point.getY(), point.getX() + CROSS_WIDTH, point.getY()));
+            gg.draw(new Line2D.Double(point.getX(), point.getY() - CROSS_WIDTH, point.getX(), point.getY() + CROSS_WIDTH));
+        }
     }
 }
