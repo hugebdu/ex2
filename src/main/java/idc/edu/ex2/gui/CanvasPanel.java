@@ -1,13 +1,13 @@
 package idc.edu.ex2.gui;
 
+import com.google.common.base.Charsets;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import idc.edu.ex2.Plot;
+import idc.edu.ex2.solution.Solution;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javax.swing.JPanel;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
@@ -15,7 +15,9 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.swing.JPanel;
+import static com.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.newReaderSupplier;
+import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,10 +30,15 @@ public class CanvasPanel extends JPanel
     private static final double POINT_WIDTH_HEIGHT = 0.3;
     private static final int POINT_ARCHW = 1;
 
+    final EventBus eventBus;
+
     private Plot plot = new Plot();
 
-    public CanvasPanel()
+    public CanvasPanel(EventBus eventBus)
     {
+        this.eventBus = eventBus;
+        eventBus.register(this);
+
         setBackground(Color.white);
         setPreferredSize(DIMENSION);
         setSize(DIMENSION);
@@ -45,6 +52,15 @@ public class CanvasPanel extends JPanel
     public void setPlot(Plot plot)
     {
         this.plot = plot;
+    }
+
+    @Subscribe
+    public void onOptionsChangedEvent(OptionsPanel.OptionsChangedEvent event)
+    {
+        Plot plot = Solution.INSTANCE.createSolution(event.numOfBeacons);
+        plot.loadSamplingPoints(newReaderSupplier(getResource("input/" + event.pointsFile), Charsets.ISO_8859_1));
+        this.plot = plot;
+        repaint();
     }
 
     @Override
@@ -95,8 +111,8 @@ public class CanvasPanel extends JPanel
     private void drawLargestSegment(Graphics2D gg)
     {
         Map.Entry<BitSet,Collection<Point2D>> maxSegment = plot.calculateAndGetLargestSegment();
-        System.out.println(String.format("Largest segment size for %d becons is (pts): %d", plot.beacons.size(),maxSegment.getValue().size()));
-
+        int size = maxSegment.getValue().size();
+        eventBus.post(new OptionsPanel.MaxSegmentChangedEvent(size));
         gg.setColor(Color.green);
 
         for (Point2D point : maxSegment.getValue())

@@ -1,0 +1,15 @@
+bm_grid10000_.txt
+bm_grid1000_.txt
+bm_grid100_.txt
+bm_random_10000_0.txt
+bm_random_10000_1.txt
+bm_random_10000_2.txt
+bm_random_10000_3.txt
+bm_random_1000_0.txt
+bm_random_1000_1.txt
+bm_random_1000_2.txt
+bm_random_1000_3.txt
+bm_random_100_0.txt
+bm_random_100_1.txt
+bm_random_100_2.txt
+bm_random_100_3.txt

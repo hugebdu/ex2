@@ -24,7 +24,6 @@ import static com.google.common.collect.Sets.newHashSet;
 public class Plot
 {
     private static final Splitter SPLITTER = Splitter.on(',').trimResults();
-    private static final Point2DSetLineProcessor LINE_PROCESSOR = new Point2DSetLineProcessor();
 
     private static final Comparator<Map.Entry<BitSet, Collection<Point2D>>> byNumOfPoints = new Comparator<Map.Entry<BitSet, Collection<Point2D>>>()
     {
@@ -38,9 +37,16 @@ public class Plot
     public List<Ellipse2D> beacons = newArrayList();
     public Set<Point2D> samplingPoints = newHashSet();
 
-    public void loadSamplingPoints(InputSupplier<InputStreamReader> inputStream) throws IOException
+    public void loadSamplingPoints(InputSupplier<InputStreamReader> inputStream)
     {
-        samplingPoints = CharStreams.readLines(inputStream, LINE_PROCESSOR);
+        try
+        {
+            samplingPoints = CharStreams.readLines(inputStream, new Point2DSetLineProcessor());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Failed to load sampling points from file", e);
+        }
     }
 
     public ImmutableMultimap<BitSet, Point2D> calculateSegmentsMap()

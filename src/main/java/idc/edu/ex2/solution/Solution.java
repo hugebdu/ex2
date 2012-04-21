@@ -11,5 +11,7 @@ import idc.edu.ex2.Plot;
  */
 public interface Solution
 {
+    public static final Solution INSTANCE = new InnaKatzFlowerSolution();
+
     Plot createSolution(int numOfBeacons);
 }

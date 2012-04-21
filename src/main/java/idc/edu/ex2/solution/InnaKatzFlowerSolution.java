@@ -43,7 +43,7 @@ public class InnaKatzFlowerSolution implements Solution {
     	int helperCirclesNumber = (numOfBeacons < 26) ? 0 : 7;
 
         solution.beacons.addAll(Lists.transform(getBeaconCenters(numOfBeacons - 7), toBeacons(numOfBeacons - 7)));
-//40 49 57 63-64
+        //40 49 57 63-64
         //42 48 55 62-32
         
         //32 39 47 53 58 63 -32

@@ -9,4 +9,5 @@ public interface Constraints
 {
     public static final double MAX_WIDTH = 100d;
     public static final double MAX_HEIGHT = 100d;
+    public static final int MAX_NUM_OF_BEACONS = 64;
 }
