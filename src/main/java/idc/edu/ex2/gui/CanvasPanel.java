@@ -17,7 +17,6 @@ import java.util.Map;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.newReaderSupplier;
-import static java.lang.String.format;
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,7 +31,7 @@ public class CanvasPanel extends JPanel
 
     final EventBus eventBus;
 
-    private Plot plot = new Plot();
+    private Plot plot;
 
     public CanvasPanel(EventBus eventBus)
     {
@@ -60,7 +59,9 @@ public class CanvasPanel extends JPanel
         Plot plot = Solution.INSTANCE.createSolution(event.numOfBeacons);
         plot.loadSamplingPoints(newReaderSupplier(getResource("input/" + event.pointsFile), Charsets.ISO_8859_1));
         this.plot = plot;
-        repaint();
+        
+        if (isShowing())
+            repaint();
     }
 
     @Override
@@ -68,6 +69,12 @@ public class CanvasPanel extends JPanel
     {
         super.paintComponent(g);
 
+        if (plot != null)
+            drawPlot(g);
+    }
+
+    private void drawPlot(Graphics g)
+    {
         Graphics2D gg = (Graphics2D) g.create();
         gg.scale(6, 6);
 

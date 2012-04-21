@@ -75,6 +75,10 @@ public class OptionsPanel extends JPanel
         c.gridx = 1;
         c.gridy = 3;
         add(calculateButton, c);
+
+        eventBus.post(new OptionsChangedEvent(
+                (String) pointsFile.getSelectedItem(),
+                64));
     }
 
     private JButton createCalculateButton()
