@@ -44,7 +44,7 @@ public class Main
 
         if (StringUtils.isBlank(inputFile) || StringUtils.isBlank(outputFile))
         {
-            System.out.println("Usage: java -jar ex2.jar <-i InputFile -o OutputFile [-n NumberOfBeacons] | -GUI >");
+            System.out.println("Usage: java -jar ex2.jar <NumberOfBeacons InputFile OutputFile | -GUI >");
             return;
         }
 
@@ -73,14 +73,13 @@ public class Main
 
     private static void readArguments(String[] args)
     {
-        showGui = false;
-        numOfBeacons = Constraints.MAX_NUM_OF_BEACONS;
-
         if(newHashSet(args).contains("-GUI"))
         {
             showGui = true;
             return;
         }
+
+        showGui = false;
 
         try
         {
