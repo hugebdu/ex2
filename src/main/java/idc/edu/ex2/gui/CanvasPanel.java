@@ -129,9 +129,11 @@ public class CanvasPanel extends JPanel
 
     private void drawLargestSegment(Graphics2D gg)
     {
-        Map.Entry<BitSet,Collection<Point2D>> maxSegment = plot.calculateAndGetLargestSegment();
+
+        Plot.MaxSegmentResult result = plot.calculateAndGetLargestSegment();
+        Map.Entry<BitSet, Collection<Point2D>> maxSegment = result.segment;
         int size = maxSegment.getValue().size();
-        eventBus.post(new OptionsPanel.MaxSegmentChangedEvent(size));
+        eventBus.post(new OptionsPanel.MaxSegmentChangedEvent(size, result.runningTimeMillis));
 
         gg.setColor(Color.green);
 

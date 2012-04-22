@@ -69,9 +69,12 @@ public class Plot
         return builder.build();
     }
 
-    public Map.Entry<BitSet, Collection<Point2D>> calculateAndGetLargestSegment()
+    public MaxSegmentResult calculateAndGetLargestSegment()
     {
-        return Collections.max(calculateSegmentsMap().asMap().entrySet(), byNumOfPoints);
+        long startingMillis = System.currentTimeMillis();
+        Map.Entry<BitSet, Collection<Point2D>> maxSegment = Collections.max(calculateSegmentsMap().asMap().entrySet(), byNumOfPoints);
+        long endingMillis = System.currentTimeMillis();
+        return new MaxSegmentResult(endingMillis - startingMillis, maxSegment);
     }
     
     public static Ellipse2D Beacon(Point2D center, double signalStrength)
@@ -99,6 +102,27 @@ public class Plot
         public Set<Point2D> getResult()
         {
             return result;
+        }
+    }
+
+    public static class MaxSegmentResult
+    {
+        public final Map.Entry<BitSet, Collection<Point2D>> segment;
+        public final long runningTimeMillis;
+
+        public MaxSegmentResult(long runningTimeMillis, Map.Entry<BitSet, Collection<Point2D>> segment)
+        {
+            this.runningTimeMillis = runningTimeMillis;
+            this.segment = segment;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "MaxSegmentResult{" +
+                    "segment=" + segment +
+                    ", runningTimeMillis=" + runningTimeMillis +
+                    '}';
         }
     }
 }

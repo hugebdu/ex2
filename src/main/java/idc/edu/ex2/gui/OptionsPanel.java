@@ -26,6 +26,7 @@ public class OptionsPanel extends JPanel
     final JComboBox pointsFile;
     final JTextField numOfBeacons;
     final JTextField maxSegmentSize;
+    final JTextField runningTime;
     final JButton calculateButton;
     final EventBus eventBus;
 
@@ -43,6 +44,7 @@ public class OptionsPanel extends JPanel
         numOfBeacons = createNumOfBeaconsTextBox();
         maxSegmentSize = createMaxSegmentSizeTextBox();
         calculateButton = createCalculateButton();
+        runningTime = createRunningTime();
 
         c.gridx = 0;
         c.gridy = 0;
@@ -68,9 +70,17 @@ public class OptionsPanel extends JPanel
         c.gridx = 1;
         c.gridy = 2;
         add(maxSegmentSize, c);
+        
+        c.gridx = 0;
+        c.gridy = 3;
+        add(new JLabel("Running time (ms):"), c);
 
         c.gridx = 1;
         c.gridy = 3;
+        add(runningTime, c);
+
+        c.gridx = 1;
+        c.gridy = 4;
         add(calculateButton, c);
 
         eventBus.post(new OptionsChangedEvent(
@@ -78,7 +88,12 @@ public class OptionsPanel extends JPanel
                 64));
     }
 
-
+    private JTextField createRunningTime()
+    {
+        JTextField field = new JTextField(N_A);
+        field.setEditable(false);
+        return field;
+    }
 
     private JButton createCalculateButton()
     {
@@ -135,15 +150,18 @@ public class OptionsPanel extends JPanel
     public void onMaxSegmentChangedEvent(MaxSegmentChangedEvent event)
     {
         this.maxSegmentSize.setText(event.maxSegmentSize == null ? N_A : event.maxSegmentSize.toString());
+        this.runningTime.setText(event.runningTimeMillis == null ? N_A : event.runningTimeMillis.toString());
     }
     
     public static class MaxSegmentChangedEvent
     {
         public final Integer maxSegmentSize;
+        public final Long runningTimeMillis;
 
-        public MaxSegmentChangedEvent(Integer maxSegmentSize)
+        public MaxSegmentChangedEvent(Integer maxSegmentSize, Long runningTimeMillis)
         {
             this.maxSegmentSize = maxSegmentSize;
+            this.runningTimeMillis = runningTimeMillis;
         }
 
         @Override
@@ -151,6 +169,7 @@ public class OptionsPanel extends JPanel
         {
             return "MaxSegmentChangedEvent{" +
                     "maxSegmentSize=" + maxSegmentSize +
+                    ", runningTimeMillis=" + runningTimeMillis +
                     '}';
         }
     }
