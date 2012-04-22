@@ -1,6 +1,7 @@
 package idc.edu.ex2.gui;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Iterables;
 import com.google.common.eventbus.EventBus;
 import idc.edu.ex2.Constraints;
 import idc.edu.ex2.Plot;
@@ -13,7 +14,10 @@ import java.awt.geom.Ellipse2D;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.io.Resources.newReaderSupplier;
 
 /**
@@ -40,7 +44,7 @@ public class Main
 
         if (StringUtils.isBlank(inputFile) || StringUtils.isBlank(outputFile))
         {
-            System.out.println("Usage: java -jar ex2.jar <-i InputFile -o OutputFile [-n NumberOfBeacons] | -GUI >");
+            System.out.println("Usage: java -jar ex2.jar <NumberOfBeacons InputFile OutputFile | -GUI >");
             return;
         }
 
@@ -69,38 +73,24 @@ public class Main
 
     private static void readArguments(String[] args)
     {
-        showGui = false;
-        inputFile = null;
-        outputFile = null;
-        numOfBeacons = Constraints.MAX_NUM_OF_BEACONS;
-
-        for (int i = 0; i < args.length; i++)
+        if(newHashSet(args).contains("-GUI"))
         {
-            if (args[i].equals("-i"))
-            {
-                if (++i < args.length)
-                {
-                    inputFile = args[i];
-                }
-            }
-            else if (args[i].equals("-o"))
-            {
-                if (++i < args.length)
-                {
-                    outputFile = args[i];
-                }
-            }
-            else if (args[i].equals("-n"))
-            {
-                if (++i < args.length)
-                {
-                    numOfBeacons = Integer.parseInt(args[i]);
-                }
-            }
-            else if (args[i].equals("-GUI"))
-            {
-                showGui = true;
-            }
+            showGui = true;
+            return;
+        }
+
+        showGui = false;
+
+        try
+        {
+            numOfBeacons = Integer.parseInt(args[0]);
+            inputFile = args[1];
+            outputFile = args[2];
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            inputFile = null;
+            outputFile = null;
         }
     }
 
@@ -111,7 +101,7 @@ public class Main
         FileWriter fileStream = new FileWriter(outputFile);
         for (Ellipse2D ellipse : plot.beacons)
         {
-            fileStream.append(String.format("%s, %s, %s\n", ellipse.getCenterX(), ellipse.getCenterY(), ellipse.getWidth()));
+            fileStream.append(String.format("%s, %s, %s\n", ellipse.getCenterX(), ellipse.getCenterY(), ellipse.getWidth() / 2));
         }
         fileStream.close();
     }
