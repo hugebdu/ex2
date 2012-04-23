@@ -1,14 +1,15 @@
 package idc.edu.ex2.solution;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import idc.edu.ex2.Constraints;
 import idc.edu.ex2.Plot;
 
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.List;
+
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,45 +20,51 @@ import java.util.List;
  */
 public class InnaKatzFlowerSolution implements Solution {
 
-    public static final Point2D AREA_CENTER = new Point2D.Double(Constraints.MAX_WIDTH / 2, Constraints.MAX_HEIGHT / 2);
+    private static final int CONST_RATIO = 32;
+    
+    private static final int RADIUS_FOR_SMALL_NUM_OF_BECONS = 40;
+
+	public static final Point2D AREA_CENTER = new Point2D.Double(Constraints.MAX_WIDTH / 2, Constraints.MAX_HEIGHT / 2);
+    
+    private Integer numOfBeacons;
 
     @Override
     public Plot createSolution(int numOfBeacons) {
+    	this.numOfBeacons = numOfBeacons;
 
         Plot solution = new Plot();
         
-    	if (numOfBeacons == 1) {
+		
+		if (numOfBeacons == 1) {
     		solution.beacons.addAll(ImmutableList.<Ellipse2D>builder()
-                    .add(Plot.Beacon(AREA_CENTER, 40)).build());
+                    .add(Plot.Beacon(AREA_CENTER, RADIUS_FOR_SMALL_NUM_OF_BECONS)).build());
     		return solution;
     	}
     	
+		
     	else if (numOfBeacons == 2) {
+    		int delta = 25;
+			Point2D.Double center1 = new Point2D.Double(RADIUS_FOR_SMALL_NUM_OF_BECONS, (Constraints.MAX_HEIGHT +delta) / 2);
+    		Point2D.Double center2 = new Point2D.Double(Constraints.MAX_HEIGHT - RADIUS_FOR_SMALL_NUM_OF_BECONS, (Constraints.MAX_HEIGHT -delta) / 2);
        		solution.beacons.addAll(ImmutableList.<Ellipse2D>builder()
-                    .add(Plot.Beacon(AREA_CENTER, 46)).add(Plot.Beacon(AREA_CENTER, 32.48)).build());
+                    .add(Plot.Beacon(center1, RADIUS_FOR_SMALL_NUM_OF_BECONS)).add(Plot.Beacon(center2, RADIUS_FOR_SMALL_NUM_OF_BECONS)).build());
     		return solution;
     	}
-    	
-    	//26 is the last good one
-    	
-    	int helperCirclesNumber = (numOfBeacons < 26) ? 0 : 7;
+		
 
-        solution.beacons.addAll(Lists.transform(getBeaconCenters(numOfBeacons - 7), toBeacons(numOfBeacons - 7)));
-        //40 49 57 63-64
-        //42 48 55 62-32
+	
+		int helperCirclesNumber = numOfBeacons/8;
+        solution.beacons.addAll(Lists.transform(getBeaconCenters(numOfBeacons - helperCirclesNumber), toBeacons(numOfBeacons - helperCirclesNumber)));
         
-        //32 39 47 53 58 63 -32
-        solution.beacons.addAll(ImmutableList.<Ellipse2D>builder()
-                .add(Plot.Beacon(AREA_CENTER, 31))
-                .add(Plot.Beacon(AREA_CENTER, 38))
-                .add(Plot.Beacon(AREA_CENTER, 44))
-                .add(Plot.Beacon(AREA_CENTER, 49))
-                .add(Plot.Beacon(AREA_CENTER, 54))
-                .add(Plot.Beacon(AREA_CENTER, 59))
-                .add(Plot.Beacon(AREA_CENTER, 63))
-                .build());
-
-        return solution;
+        if (helperCirclesNumber > 0) {
+	        double interval = CONST_RATIO/helperCirclesNumber;
+	        for (int i = 0; i < helperCirclesNumber; i++) {
+	        	int initialRadius = numOfBeacons>=CONST_RATIO?38:45;
+	        	solution.beacons.add(Plot.Beacon(AREA_CENTER, initialRadius+i*interval));       
+	        }
+        }
+        
+	    return solution;
     }
 
     private Function<Point2D, Ellipse2D> toBeacons(final int numOfBeacons) {
@@ -92,14 +99,36 @@ public class InnaKatzFlowerSolution implements Solution {
     }
 
     private double getDistanceFromCenter()
-    {
+    {    	
+    	if (numOfBeacons <=5) {
+    		return 5*numOfBeacons + 5;
+    	}
+    	
+		if (numOfBeacons >= 32) {
+			return 47;
+		} 
+		if (numOfBeacons >= 16) {
+			return 45;
+		}
+		if (numOfBeacons >= 8) {
+			return 43;
+		}
+		
+		return 40;	
 
-        return 47;
     }
 
     private double getSignalStrength(int numOfPoints)
     {
-
-    	return 49;
+    	
+		if (numOfBeacons<=5) {
+			return RADIUS_FOR_SMALL_NUM_OF_BECONS;
+		} else {		
+			return 49;
+		}
+    }
+    
+    private static int log2(int n) {
+    	return 31 - Integer.numberOfLeadingZeros(n);
     }
 }
